@@ -25,7 +25,7 @@ const url = require("url");
 const path = require("path");
 const querystring = require("querystring");
 const toMarkdown = require("to-markdown");
-const jade = require("jade");
+const pug = require("pug");
 const FormParser = require("./form-parser");
 const utils = require("./utils");
 
