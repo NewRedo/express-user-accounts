@@ -119,14 +119,12 @@ module.exports = function(options) {
                 if (!err) {
                     req.user = user;
                     callback(null);
-                } else if (err & err.code !== "EDUPLICATE") {
-                    // Email already taken.
-                    callback(err);
-                } else {
+                } else if (err.code === "EDUPLICATE") {
                     // Allow the user to confirm their email address.
+                    user = err.user;
                     err = null;
                     const token = utils.encodeToken({
-                        id: req.user.id,
+                        id: user.id,
                         email: req.body.email
                     }, req.secret);
                     const confirmationUrl = url.format({
@@ -160,6 +158,8 @@ module.exports = function(options) {
                         res.redirect(path.join(req.baseUrl, "pending"));
                         return;
                     });
+                } else {
+                    callback(err);
                 }
             });
         },
