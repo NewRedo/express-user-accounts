@@ -164,10 +164,7 @@ module.exports = function(options) {
             });
         },
         function(req, res, callback) {
-            // Set the user cookie.
-            utils.renewCookie(req, res);
-
-            // Allow the user to confirm their email address.
+            // Require the user to confirm their email address.
             const token = utils.encodeToken({
                 id: req.user.id,
                 email: req.body.email
