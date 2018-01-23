@@ -1,0 +1,18 @@
+extends ./page-template.pug
+
+block content
+    if (errors)
+        div.alert.alert-danger
+            for error in errors
+                p= error
+    h1 Edit
+
+    form(action=action,enctype="multipart/form-data",method="post")
+        input(type="hidden",name="_csrf",value=_csrf)
+        +formFields(form, errors, values)
+        button.btn.btn-primary(type='submit') Submit Changes
+        a.btn(href="/") Cancel
+
+    script(src="/_res/js/jquery.js")
+    script(src="/_res/lib/bootstrap-validation-highlighter-3/index.js")
+    script(src="/_res/lib/custom-validity-attribute-1/index.js")

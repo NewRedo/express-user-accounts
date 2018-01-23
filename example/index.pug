@@ -1,0 +1,15 @@
+extends ./user-account-templates/page-template
+
+block content
+    h1= title
+    if user
+        p You are logged in, see output below for details.
+        p
+            a(href="accounts/edit") Edit your account
+        p
+            a(href="accounts/logout") Log out
+    else
+        p You are not logged in.
+        p
+            a(href="accounts/login?return-url=%2F") Log in
+

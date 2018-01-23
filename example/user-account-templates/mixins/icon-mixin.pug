@@ -1,0 +1,10 @@
+mixin icon(name)
+	if name
+		- if (name == "users") name = "user"
+		- if (name == "person") name = "user"
+		- if (name == "logout") name = "log-out"
+		- if (name == "add") name = "plus"
+		- if (name == "delete") name = "remove"
+		- var name = "glyphicon-" + name
+		span.glyphicon(class=name,aria-hidden=true)
+

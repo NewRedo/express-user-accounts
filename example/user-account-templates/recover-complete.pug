@@ -1,0 +1,13 @@
+extends ./page-template.pug
+
+block content
+    if (errors)
+        div.alert.alert-danger
+            for error in errors
+                p= error
+    h1 Complete Password Recovery
+    p Please provide a new password in order to continue.
+    form(action=action,enctype="multipart/form-data",method="post")
+        input(type="hidden",name="_csrf",value=_csrf)
+        +formFields(form, errors, values)
+        button.btn.btn-primary(type='submit') Submit

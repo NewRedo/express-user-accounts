@@ -1,0 +1,15 @@
+extends ./page-template.pug
+
+block content
+    h1 Log-in
+    if error
+        div.alert.alert-danger
+            p= error
+    form(action=action,enctype="multipart/form-data",method="post")
+        input(type="hidden",name="_csrf",value=_csrf)
+        +formFields(form)
+        button.btn.btn-primary(type='submit') Login
+        | &nbsp;
+        a.btn.btn-success(href=registerUrl) Create an Account
+        | &nbsp;
+        a.btn.btn-info(href=recoveryUrl) Forgot Password

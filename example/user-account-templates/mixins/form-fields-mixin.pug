@@ -1,0 +1,115 @@
+mixin formFields(form, errors, values)
+    - values = values || {};
+    for field in form
+        div.form-group(
+            class={
+                "has-error": errors && errors[field.name] && errors[field.name] != "required",
+                "has-warning": errors && errors[field.name] && errors[field.name] == "required"
+            }
+        )
+            if field.list
+                datalist(id=field.name)
+                    for item in field.list
+                        option(value=item)
+            if field.type !== "info"
+                label.control-label(
+                    for=field.name
+                )= field.label
+            if field.type == "select"
+                select(
+                    class={
+                        "form-control": true
+                    },
+                    id=field.name,
+                    name=field.name,
+                    required=field.required,
+                    list=field.list?field.name:null,
+                    custom-validity= errors && errors[field.name]
+                )
+                    - var found = false;
+                    - var value = (values || {})[field.name] || "";
+                    - var options = [{ value: "", label: "" }].concat(field.options);
+                    for option in options
+                        -
+                            if (typeof option === "string") {
+                                option = {
+                                    value: option,
+                                    label: option
+                                };
+                            }
+                            var selected = option.value == value;
+                            found = found || selected;
+                        option(
+                            value= option.value,
+                            selected= selected,
+                            title= option.title
+                        )= option.label
+                    if !found
+                        option(value=value,selected=true)= value
+            else if field.type == "date"
+                -
+                    if (!field.dateFormat) {
+                        throw new Error("Date fields must define dateFormat.");
+                    }
+                input(
+                    class={
+                        "form-control": true
+                    },
+                    id=field.name,
+                    name=field.name,
+                    required=field.required,
+                    pattern=field.dateFormat.replace(/[a-zA-Z]/g, "[0-9]")
+                    value=values && values[field.name],
+                    placeholder= field.placeholder || field.dateFormat,
+                    custom-validity= errors && errors[field.name]
+                )
+            else if field.type == "date-time"
+                input(
+                    class={
+                        "form-control": true
+                    },
+                    id=field.name,
+                    name=field.name,
+                    required=field.required,
+                    pattern=field.dateFormat.replace(/[a-zA-Z]/g, "[0-9]")
+                    value=values && values[field.name],
+                    placeholder=field.placeholder || field.dateFormat,
+                    custom-validity= errors && errors[field.name]
+                )
+            else if field.type == "textarea"
+                textarea(
+                    class={
+                        "form-control": true
+                    },
+                    id=field.name,
+                    name=field.name,
+                    required=field.required,
+                    pattern=field.pattern,
+                    autocomplete=field.list?"off":field.autocomplete,
+                    placeholder=field.placeholder,
+                    rows=field.rows,
+                    custom-validity= errors && errors[field.name]
+                )= values && values[field.name]
+            else if field.type === "info"
+                != field.label
+            else
+                input(
+                    class={
+                        "form-control": true
+                    },
+                    type=field.type || 'text',
+                    id=field.name,
+                    name=field.name,
+                    readonly=field.readonly,
+                    required=field.required,
+                    pattern=field.pattern,
+                    minlength=field.minlength,
+                    maxlength=field.maxlength,
+                    value=values && values[field.name],
+                    list=field.list?field.name:null,
+                    autocomplete=field.list?"off":field.autocomplete,
+                    placeholder=field.placeholder,
+                    custom-validity= errors && errors[field.name]
+                )
+            p.help-block= field.help
+

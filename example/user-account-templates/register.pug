@@ -1,0 +1,14 @@
+extends ./page-template.pug
+
+block content
+    h1 Create an Account
+    if message
+        div.alert.alert-danger
+            p= message
+    p To try us out for the first time, you will need to create an account. Complete the sign up form to proceed.
+    form(action=action,enctype="multipart/form-data",method="post")
+        input(type="hidden",name="_csrf",value=_csrf)
+        +formFields(form, errors, values)
+        button.btn.btn-primary(type='submit') Register
+        |&nbsp;
+        a.btn.btn-default(href="/") Cancel

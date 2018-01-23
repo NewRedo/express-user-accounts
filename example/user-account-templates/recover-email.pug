@@ -1,0 +1,13 @@
+-
+    email.from = "Admin <admin@localhost>";
+    email.subject = "Confirm your account";
+
+html
+    body
+        p Hi #{user.name.givenName}
+        p You have received this email because you started the account recovery process.
+        p To complete the process you must click the following link and choose a new password.
+        p
+            a(href=confirmationUrl) Complete account recovery.
+        p After that you'll be logged in and ready to go.
+        p Thanks

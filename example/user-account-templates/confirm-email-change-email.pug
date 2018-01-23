@@ -1,0 +1,12 @@
+-
+    email.from = "Admin <admin@localhost>";
+    email.subject = "Confirm your email change";
+
+html
+    body
+        p Hi #{user.name.givenName}
+        p You requested to change your account's email to this address. To confirm the change, please click the link below:
+        p
+            a(href=confirmationUrl) Confirm your email change.
+        p After that you'll be logged in and ready to go.
+        p Thanks
