@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
 
-# Prod dependiencies
+# This section exists to work around a bug in Vagrant as of version 2.1.1 which
+# does not configure IPv4 properly for the host-only adapter in Ubuntu 18.04.
+rm /etc/netplan/50-cloud-init.yaml
+cp /vagrant/netplan-config.yaml /etc/netplan/99-vagrant.yaml
+netplan apply
+sleep 5 # Allow network to reconfigure
+
+# Main upgrade
 apt-get update
-apt-get install -y couchdb nodejs nodejs-legacy npm
+apt-get dist-upgrade
+
+# Prod dependiencies
+apt-get install -y npm
 
 # Dev dependencies - basic
-apt-get update
 apt-get install -y avahi-daemon avahi-utils
 
 # Set up an email testing environment that catches all mail sent whatever the
@@ -13,7 +22,7 @@ apt-get install -y avahi-daemon avahi-utils
 # run safely - see: http://www.newredo.com/building-a-test-email-server/
 # install mail transfer agent (Postfix) and pop3 server (Dovecot)
 apt-get update
-debconf-set-selections <<< "postfix postfix/mailname string racebest.com"
+debconf-set-selections <<< "postfix postfix/mailname string localhost"
 debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local only'"
 apt-get install -y postfix dovecot-pop3d
 
@@ -23,7 +32,7 @@ sed -i '$ a\'"virtual_alias_maps = regexp:/etc/postfix/virtual" /etc/postfix/mai
 echo "/.*/ mailsink" > /etc/postfix/virtual
 
 # add the mailsink user with password mailsink
-adduser mailsink --gecos "Race Best, Futurelabs, 0113 831 3139, 0113 831 3139," --disabled-password
+adduser mailsink --gecos "Mail Sink" --disabled-password
 echo "mailsink:mailsink" | sudo chpasswd
 
 # config dovecot
@@ -35,8 +44,3 @@ ufw allow pop3
 ufw allow smtp
 service dovecot restart
 service postfix restart
-
-# config couchdb
-# change bind address to allow public access and normal Futon access through port 5984
-sed --in-place "s|;bind_address = 127.0.0.1|bind_address = 0.0.0.0|" /etc/couchdb/local.ini
-service couchdb restart

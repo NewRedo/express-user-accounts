@@ -1,0 +1,10 @@
+# This section exists to work around a bug in Vagrant as of version 2.1.1 which
+# does not configure IPv4 properly for the host-only adapter in Ubuntu 18.04.
+network:
+    version: 2
+    ethernets:
+        enp0s3:
+            dhcp4: true
+        enp0s8:
+            dhcp4: true
+
