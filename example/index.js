@@ -1,10 +1,11 @@
 "use strict";
 
-const userAccounts = require("..");
-const express = require("express");
 const cookieParser = require("cookie-parser");
-const path = require("path");
+const express = require("express");
 const multer = require("multer");
+const os = require('os');
+const path = require("path");
+const userAccounts = require("..");
 
 const app = express();
 
@@ -13,7 +14,9 @@ app.set("view engine", "pug");
 // Cookie parser with signing is required.
 app.use(cookieParser("put-your-key-here"));
 app.use("/accounts", multer().any());
-app.use("/accounts", require("csurf")({ cookie: true }));
+app.use("/accounts", require("csurf")({
+    cookie: true
+}));
 
 // Configure the user accounts module.
 app.use(userAccounts({
@@ -26,10 +29,10 @@ app.use(userAccounts({
     templatePath: path.join(__dirname, "user-account-templates"),
 
     // Pluggable data-stores are supported, this uses CouchDB.
-    store: new userAccounts.PouchDbStore("http://localhost:5984/users")
+    store: new userAccounts.PouchDbStore(path.join(os.homedir(), "users.pouchdb"))
 }));
 
-app.get("/", function (req, res, next) {
+app.get("/", function(req, res, next) {
     res.locals.user = req.user;
     res.render(path.join(__dirname, "index"));
 });
