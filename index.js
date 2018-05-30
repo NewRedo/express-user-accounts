@@ -22,20 +22,27 @@
 
 const moment = require("moment");
 const extend = require("extend");
+const htmlToText = require('nodemailer-html-to-text').htmlToText;
 const path = require("path");
 const UserService = require("./service");
 const nodeMailer = require("nodemailer");
 const utils = require("./utils");
 const csrf = require('csurf');
 
-module.exports = function (options) {
+module.exports = function(options) {
     options = extend({
         mountPoint: "/accounts",
         templatePath: path.join(".", "user-accounts"),
         store: {
-            get: function () { throw new Error("storage.get is not implemented."); },
-            put: function () { throw new Error("storage.put is not implemented."); },
-            findByEmail: function () { throw new Error("storage.find is not implemented."); }
+            get: function() {
+                throw new Error("storage.get is not implemented.");
+            },
+            put: function() {
+                throw new Error("storage.put is not implemented.");
+            },
+            findByEmail: function() {
+                throw new Error("storage.find is not implemented.");
+            }
         },
         mailTransport: nodeMailer.createTransport({
             host: "localhost",
@@ -46,13 +53,20 @@ module.exports = function (options) {
         })
     }, options);
 
+
+    // Automatic conversion of HTML to text emails.
+    options.mailTransport.use("compile", htmlToText());
+
+
     options.service = new UserService(options);
 
     const app = require("express").Router();
 
-    app.use(options.mountPoint, csrf({ cookie: true }));
+    app.use(options.mountPoint, csrf({
+        cookie: true
+    }));
 
-    app.use(function (req, res, next) {
+    app.use(function(req, res, next) {
         // Get the signed user cookie.
         var user = req.signedCookies["user"];
 
@@ -73,13 +87,13 @@ module.exports = function (options) {
 
         // Automatically renew.
         if (user) {
-	       utils.renewCookie(req, res);
+            utils.renewCookie(req, res);
         }
 
         next();
     });
 
-    app.use(options.mountPoint, function (req, res, next) {
+    app.use(options.mountPoint, function(req, res, next) {
         // Set up the template path.
         const originalRender = res.render;
         res.render = function(template) {
@@ -89,7 +103,7 @@ module.exports = function (options) {
         next();
     });
 
-    app.get(options.mountPoint, function (req, res) {
+    app.get(options.mountPoint, function(req, res) {
         res.redirect(path.join(req.baseUrl, req.path, "login"));
     });
 

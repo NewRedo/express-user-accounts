@@ -26,7 +26,6 @@ const multer = require("multer");
 const moment = require("moment");
 const url = require("url");
 const querystring = require("querystring");
-const toMarkdown = require("to-markdown");
 const pug = require("pug");
 const FormParser = require("./form-parser");
 const utils = require("./utils");
@@ -153,7 +152,6 @@ module.exports = function(options) {
                             return;
                         }
                         email.html = html;
-                        email.text = toMarkdown(html);
                         options.service.sendEmail(email);
                         res.redirect(path.join(req.baseUrl, "pending"));
                         return;
@@ -195,7 +193,6 @@ module.exports = function(options) {
                     return;
                 }
                 email.html = html;
-                email.text = toMarkdown(html);
                 options.service.sendEmail(email);
                 res.redirect(path.join(req.baseUrl, req.path, "pending"));
             });

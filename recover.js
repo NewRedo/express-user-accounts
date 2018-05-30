@@ -27,45 +27,41 @@ const multer = require("multer");
 const moment = require("moment");
 const url = require("url");
 const querystring = require("querystring");
-const toMarkdown = require("to-markdown");
 const pug = require("pug");
 const FormParser = require("./form-parser");
 const utils = require("./utils");
 
-module.exports = function (options) {
+module.exports = function(options) {
 
     var app = express.Router();
 
-    app.all("/", function (req, res, next) {
+    app.all("/", function(req, res, next) {
         res.locals._csrf = req.csrfToken();
-        res.locals.form = [
-            {
-                name: "email",
-                label: "Email address",
-                type: "email",
-                title: "A valid email address is like name@domain.com",
-                required: true
-            }
-        ];
+        res.locals.form = [{
+            name: "email",
+            label: "Email address",
+            type: "email",
+            title: "A valid email address is like name@domain.com",
+            required: true
+        }];
 
         next();
     });
 
-    app.post("/", function (req, res, next) {
+    app.post("/", function(req, res, next) {
         const parser = new FormParser(res.locals.form);
         parser.parsePost(req, (errors, values, extras) => {
             res.locals.values = values;
             res.locals.errors = errors;
             if (errors) {
                 res.render("recover");
-            }
-            else {
+            } else {
                 next();
             }
         });
     });
 
-    app.post("/", function (req, res, callback) {
+    app.post("/", function(req, res, callback) {
         async.waterfall([
             cb => options.service.findByEmail(req.body.email, cb),
             (user, cb) => {
@@ -104,7 +100,6 @@ module.exports = function (options) {
                         return;
                     }
                     email.html = html;
-                    email.text = toMarkdown(html);
                     options.service.sendEmail(email);
                     res.redirect(path.join(req.baseUrl, "pending"));
                 });
@@ -112,15 +107,15 @@ module.exports = function (options) {
         ], callback);
     });
 
-    app.all("/", function (req, res, callback) {
+    app.all("/", function(req, res, callback) {
         res.render("recover");
     });
 
-    app.get("/pending", function (req, res, callback) {
+    app.get("/pending", function(req, res, callback) {
         res.render("recover-pending");
     });
 
-    app.all("/complete", function (req, res, next) {
+    app.all("/complete", function(req, res, next) {
         if (!req.query.token) {
             res.status(401, "Bad request").end();
             return;
@@ -131,8 +126,7 @@ module.exports = function (options) {
             return;
         }
         res.locals._csrf = req.csrfToken();
-        res.locals.form = [
-            {
+        res.locals.form = [{
                 name: "email",
                 type: "text",
                 readonly: true,
@@ -158,7 +152,7 @@ module.exports = function (options) {
         next();
     });
 
-    app.post("/complete", function (req, res, next) {
+    app.post("/complete", function(req, res, next) {
         const parser = new FormParser(res.locals.form);
         parser.parsePost(req, (errors, values, extras) => {
             // Special validation...
@@ -174,14 +168,13 @@ module.exports = function (options) {
                 res.locals.values = values;
                 res.locals.errors = errors;
                 res.render("recover-complete");
-            }
-            else {
+            } else {
                 next();
             }
         });
     });
 
-    app.post("/complete", function (req, res, next) {
+    app.post("/complete", function(req, res, next) {
         async.waterfall([
             cb => options.service.recover(req.body, cb),
             (user, cb) => {
@@ -192,7 +185,7 @@ module.exports = function (options) {
         ], next);
     });
 
-    app.all("/complete", function (req, res, next) {
+    app.all("/complete", function(req, res, next) {
         res.render("recover-complete");
     });
 
