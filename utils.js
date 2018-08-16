@@ -26,13 +26,12 @@ const assert = require("assert");
 const moment = require("moment");
 const zlib = require("zlib");
 
-function renewCookie (req, res) {
+function renewCookie(req, res) {
     const expires = moment.utc().add(1, "hour");
     req.user.expires = expires.toISOString();
     res.cookie(
         "user",
-        req.user,
-        {
+        req.user, {
             expires: expires.toDate(),
             signed: true,
             secure: req.secure,
@@ -42,7 +41,7 @@ function renewCookie (req, res) {
     return req, res;
 }
 
-function encodeToken (data, secret, ttlMinutes) {
+function encodeToken(data, secret, ttlMinutes) {
     assert(secret);
     assert(data);
     ttlMinutes = ttlMinutes || 60;
@@ -57,7 +56,7 @@ function encodeToken (data, secret, ttlMinutes) {
     return payload;
 }
 
-function decodeToken (token, secret) {
+function decodeToken(token, secret) {
     assert(secret);
     assert(token);
     var payload = base64url.toBuffer(token);
@@ -70,8 +69,22 @@ function decodeToken (token, secret) {
     return payload.data;
 }
 
+function setUser(req, user) {
+    // Derive the displayName
+    user.displayName = [
+        user.name.givenName,
+        user.name.familyName
+    ].join(" ");
+
+    // Remove the password
+    delete user.bcryptedPassword;
+
+    req.user = user;
+}
+
 module.exports = {
     renewCookie,
     encodeToken,
-    decodeToken
+    decodeToken,
+    setUser
 };

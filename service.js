@@ -104,6 +104,10 @@ class Service {
         } else {
             async.waterfall([
                 cb => {
+                    this._options.store.get(args.id, cb);
+                },
+                (original, cb) => {
+                    args.bcryptedPassword = original.bcryptedPassword;
                     this._options.store.put(args, cb);
                 },
                 cb => {

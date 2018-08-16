@@ -122,12 +122,24 @@ module.exports = function(options) {
 
     app.post("/", [
         function(req, res, next) {
-            var updatedUser = extend(req.user, {});
+            // We need to raw record to update it, otherwise we lose some
+            // the password and risk poluting the record with runtime data.
+            options.service.get(req.user.id, function(err, user) {
+                if (!err) {
+                    res.locals.userToUpdate = user;
+                }
+                next(err);
+            });
+        },
+        function(req, res, next) {
+            var updatedUser = extend(res.locals.userToUpdate, {});
             if (req.body.familyName) updatedUser.name.familyName = req.body.familyName;
             if (req.body.givenName) updatedUser.name.givenName = req.body.givenName;
             if (req.body.newPassword) updatedUser.newPassword = req.body.newPassword;
             options.service.update(updatedUser, function(err, user) {
-                if (!err) req.user = user;
+                if (!err) {
+                    utils.setUser(req, user);
+                }
                 next(err);
             });
         },

@@ -57,7 +57,6 @@ module.exports = function(options) {
     // Automatic conversion of HTML to text emails.
     options.mailTransport.use("compile", htmlToText());
 
-
     options.service = new UserService(options);
 
     const app = require("express").Router();

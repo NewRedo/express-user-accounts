@@ -27,29 +27,27 @@ const querystring = require("querystring");
 const FormParser = require("./form-parser");
 const utils = require("./utils");
 
-module.exports = function (options) {
-    options = extend({
-    }, options);
+module.exports = function(options) {
+    options = extend({}, options);
 
     const app = require("express").Router();
 
-    app.all("/", function (req, res, next) {
+    app.all("/", function(req, res, next) {
         res.locals._csrf = req.csrfToken();
-        res.locals.form = [
-	        {
-		        name: "email",
-		        label: "Email Address",
-		        required: true,
-		        type: "email",
-		        help: "Required."
-	        },
-	        {
-		        type: "password",
-		        name: "password",
-		        label: "Password",
-		        required: true,
-		        help: "Required."
-	        }
+        res.locals.form = [{
+                name: "email",
+                label: "Email Address",
+                required: true,
+                type: "email",
+                help: "Required."
+            },
+            {
+                type: "password",
+                name: "password",
+                label: "Password",
+                required: true,
+                help: "Required."
+            }
         ];
         res.locals.registerUrl =
             path.join(req.baseUrl, req.path, "..", "register") +
@@ -60,21 +58,20 @@ module.exports = function (options) {
         next();
     });
 
-    app.post("/", function (req, res, next) {
+    app.post("/", function(req, res, next) {
         const parser = new FormParser(res.locals.form);
         parser.parsePost(req, (errors, values, extras) => {
             res.locals.values = values;
             res.locals.errors = errors;
             if (errors) {
                 res.render("login");
-            }
-            else {
+            } else {
                 next();
             }
         });
     });
 
-    app.post("/", function (req, res, next) {
+    app.post("/", function(req, res, next) {
         options.service.authenticate(req.body, (err, user) => {
             if (err) {
                 next(err);
@@ -86,14 +83,15 @@ module.exports = function (options) {
                 next();
                 return;
             }
-            req.user = user;
+
+            utils.setUser(req, user);
             utils.renewCookie(req, res);
 
             res.redirect(req.query["return-url"]);
         });
     });
 
-    app.all("/", function (req, res) {
+    app.all("/", function(req, res) {
         res.render("login");
     });
 

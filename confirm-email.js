@@ -45,7 +45,7 @@ module.exports = function(options) {
         }
         options.service.confirmEmailAddress(payload, (err, user) => {
             if (!err) {
-                req.user = user;
+                utils.setUser(req, user);
                 utils.renewCookie(req, res);
             }
             next(err);
