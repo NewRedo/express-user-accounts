@@ -63,3 +63,19 @@ into the `value` attribute.
 
 All email templates contain a URL that must be rendered so that the user can
 click on it to complete the given process.
+
+The User Object
+---------------
+
+A user object is set that loosely conforms to the [Portal Contacts](https://tools.ietf.org/html/draft-smarr-vcarddav-portable-contacts-00#section-7.2) specification for an entry, as used by [Passport.js](http://www.passportjs.org/docs/profile/).
+
+You can access this user in Express handlers in `req.user`.
+
+The following values are provided:
+
+    * `id` is the unique identifier, usually the original email the user signed up with but this may change in future.
+    * `displayName` is derived from the name information provided by the user.
+    * `name.familyName` as provided by the user.
+    * `name.givenName` as provided by the user.
+    * `name.middleName` as provided by the user but may be omitted.
+    * `emails[0].value` is provided only, there is no support for more than one email or the email type at the moment.
