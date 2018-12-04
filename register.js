@@ -138,7 +138,7 @@ module.exports = function(options) {
                         to: req.body.email
                     };
                     const data = {
-                        user: updatedUser,
+                        user: user,
                         confirmationUrl,
                         email // Allow template to override email settings
                     };
