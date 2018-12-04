@@ -123,7 +123,6 @@ module.exports = function(options) {
                     user = err.user;
                     err = null;
                     const token = utils.encodeToken({
-                        id: user.id,
                         email: req.body.email
                     }, req.secret);
                     const confirmationUrl = url.format({
