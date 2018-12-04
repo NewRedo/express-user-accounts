@@ -38,7 +38,7 @@ module.exports = function(options) {
             var loginUrl = {
                 protocol: req.protocol,
                 host: req.get("Host"),
-                pathname: "accounts/login",
+                pathname: path.join(req.baseUrl, "../login"),
                 query: {
                     "return-url": req.originalUrl
                 }
