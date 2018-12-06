@@ -38,7 +38,7 @@ module.exports = function(options) {
             var loginUrl = {
                 protocol: req.protocol,
                 host: req.get("Host"),
-                pathname: "accounts/login",
+                pathname: path.join(req.baseUrl, "../login"),
                 query: {
                     "return-url": req.originalUrl
                 }
@@ -148,39 +148,80 @@ module.exports = function(options) {
                 // Set the user cookie.
                 utils.renewCookie(req, res);
 
-                // Allow the user to confirm their email address.
-                const token = utils.encodeToken({
-                    id: req.user.id,
-                    email: req.body.email
-                }, req.secret);
-                const confirmationUrl = url.format({
-                    protocol: req.protocol,
-                    host: req.get("host"),
-                    pathname: path.join(req.baseUrl, req.path, "..", "confirm-email"),
-                    search: querystring.stringify({
-                        "return-url": req.query["return-url"],
-                        "token": token
-                    })
-                });
-                var email = {
-                    to: req.body.email
-                };
-                var data = {
-                    user: req.user,
-                    confirmationUrl,
-                    email // Allow template to override email settings
-                };
-
-                // Use express rendering configuration to render the content.
-                var template = path.join(options.templatePath, "confirm-email-change-email");
-                req.app.render(template, data, (err, html) => {
+                options.service.findByEmail(req.body.email, (err, user) => {
                     if (err) {
                         next(err);
-                        return;
+                    } else if (!user) {
+                        // Allow the user to confirm their email address.
+                        const token = utils.encodeToken({
+                            id: req.user.id,
+                            email: req.body.email
+                        }, req.secret);
+                        const confirmationUrl = url.format({
+                            protocol: req.protocol,
+                            host: req.get("host"),
+                            pathname: path.join(req.baseUrl, req.path, "..", "confirm-email"),
+                            search: querystring.stringify({
+                                "return-url": req.query["return-url"],
+                                "token": token
+                            })
+                        });
+                        var email = {
+                            to: req.body.email
+                        };
+                        var data = {
+                            user: req.user,
+                            confirmationUrl,
+                            email // Allow template to override email settings
+                        };
+
+                        // Use express rendering configuration to render the content.
+                        var template = path.join(options.templatePath, "confirm-email-change-email");
+                        req.app.render(template, data, (err, html) => {
+                            if (err) {
+                                next(err);
+                                return;
+                            }
+                            email.html = html;
+                            options.service.sendEmail(email);
+                            next();
+                        });
+                    } else {
+                        // The email is already in use, start the account recovery process for that address.
+                        const token = utils.encodeToken({
+                            id: user.id,
+                            email: req.body.email
+                        }, req.secret);
+                        const confirmationUrl = url.format({
+                            protocol: req.protocol,
+                            host: req.get("host"),
+                            pathname: path.join(req.baseUrl, "..", "recover/complete"),
+                            search: querystring.stringify({
+                                "return-url": req.query["return-url"],
+                                "token": token
+                            })
+                        });
+                        const email = {
+                            to: req.body.email
+                        };
+                        const data = {
+                            user: user,
+                            confirmationUrl,
+                            email // Allow template to override email settings
+                        };
+
+                        // Use express rendering configuration to render the content.
+                        const template = path.join(options.templatePath, "recover-email");
+                        req.app.render(template, data, (err, html) => {
+                            if (err) {
+                                next(err);
+                                return;
+                            }
+                            email.html = html;
+                            options.service.sendEmail(email);
+                            next();
+                        });
                     }
-                    email.html = html;
-                    options.service.sendEmail(email);
-                    next();
                 });
             } else {
                 next();

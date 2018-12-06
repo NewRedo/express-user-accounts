@@ -123,7 +123,6 @@ module.exports = function(options) {
                     user = err.user;
                     err = null;
                     const token = utils.encodeToken({
-                        id: user.id,
                         email: req.body.email
                     }, req.secret);
                     const confirmationUrl = url.format({
@@ -139,7 +138,7 @@ module.exports = function(options) {
                         to: req.body.email
                     };
                     const data = {
-                        user: updatedUser,
+                        user: user,
                         confirmationUrl,
                         email // Allow template to override email settings
                     };
