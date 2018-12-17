@@ -28,10 +28,13 @@ const zlib = require("zlib");
 
 function renewCookie(req, res) {
     const expires = moment.utc().add(1, "hour");
-    req.user.expires = expires.toISOString();
+    var data = {
+        expires: expires.toISOString(),
+        user: req.user
+    };
     res.cookie(
         "user",
-        req.user, {
+        data, {
             expires: expires.toDate(),
             signed: true,
             secure: req.secure,
