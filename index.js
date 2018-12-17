@@ -67,25 +67,25 @@ module.exports = function(options) {
 
     app.use(function(req, res, next) {
         // Get the signed user cookie.
-        var user = req.signedCookies["user"];
+        var cookie = req.signedCookies["user"];
 
         // Check exprity of cookie as this can be spoofed.
         const now = moment();
-        if (user) {
-            const expires = moment(user.expires, moment.ISO_8601)
+        if (cookie) {
+            const expires = moment(cookie.expires, moment.ISO_8601);
             if (expires.isBefore(now)) {
                 res.clearCookie("user");
             }
         }
 
         // Make available to all templates.
-        if (user) {
-            req.user = user;
-            res.locals.user = user;
+        if (cookie) {
+            req.user = cookie.user;
+            res.locals.user = cookie.user;
         }
 
         // Automatically renew.
-        if (user) {
+        if (cookie) {
             utils.renewCookie(req, res);
         }
 
