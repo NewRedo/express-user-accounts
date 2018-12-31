@@ -5,7 +5,7 @@ const express = require("express");
 const multer = require("multer");
 const os = require('os');
 const path = require("path");
-const userAccounts = require("..");
+const ExpressUserAccounts = require("..");
 
 const app = express();
 
@@ -19,18 +19,16 @@ app.use("/accounts", require("csurf")({
 }));
 
 // Configure the user accounts module.
-app.use(userAccounts({
-    // User account related functions will be mounted here, but req.user will
-    // be set everywhere.
-    mountPoint: "/accounts",
-
+const userAccounts = new ExpressUserAccounts({
     // Path to your specific templates. Form structure for each function is
     // passed to the template via `res.locals`.
     templatePath: path.join(__dirname, "user-account-templates"),
 
     // Pluggable data-stores are supported, this uses CouchDB.
-    store: new userAccounts.PouchDbStore(path.join(os.homedir(), "users.pouchdb"))
-}));
+    store: new ExpressUserAccounts.PouchDbStore(path.join(os.homedir(), "users.pouchdb"))
+});
+app.use(userAccounts.createMiddleware());
+app.use("/accounts", userAccounts.createUserInterface());
 
 app.get("/", function(req, res, next) {
     res.locals.user = req.user;

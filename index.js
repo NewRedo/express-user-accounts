@@ -29,114 +29,103 @@ const nodeMailer = require("nodemailer");
 const utils = require("./utils");
 const csrf = require('csurf');
 
-module.exports = function(options) {
-    options = extend({
-        mountPoint: "/accounts",
-        templatePath: path.join(".", "user-accounts"),
-        store: {
-            get: function() {
-                throw new Error("storage.get is not implemented.");
+class ExpressUserAccounts {
+    constructor(options) {
+        options = extend({
+            templatePath: path.join(".", "user-accounts"),
+            store: {
+                get: function() {
+                    throw new Error("storage.get is not implemented.");
+                },
+                put: function() {
+                    throw new Error("storage.put is not implemented.");
+                },
+                findByEmail: function() {
+                    throw new Error("storage.find is not implemented.");
+                }
             },
-            put: function() {
-                throw new Error("storage.put is not implemented.");
-            },
-            findByEmail: function() {
-                throw new Error("storage.find is not implemented.");
+            mailTransport: nodeMailer.createTransport({
+                host: "localhost",
+                port: 25,
+                tls: {
+                    rejectUnauthorized: false
+                }
+            })
+        }, options);
+
+        // Automatic conversion of HTML to text emails.
+        options.mailTransport.use("compile", htmlToText());
+        options.service = new UserService(options);
+
+        this._options = options;
+    }
+
+    createMiddleware() {
+
+        const app = require("express").Router();
+
+        app.use(function(req, res, next) {
+            // Get the signed user cookie.
+            var cookie = req.signedCookies["user"];
+
+            // Check exprity of cookie as this can be spoofed.
+            const now = moment();
+            if (cookie) {
+                const expires = moment(cookie.expires, moment.ISO_8601);
+                if (expires.isBefore(now)) {
+                    res.clearCookie("user");
+                }
             }
-        },
-        mailTransport: nodeMailer.createTransport({
-            host: "localhost",
-            port: 25,
-            tls: {
-                rejectUnauthorized: false
+
+            // Make available to all templates.
+            if (cookie) {
+                req.user = cookie.user;
+                res.locals.user = cookie.user;
             }
-        })
-    }, options);
 
-
-    // Automatic conversion of HTML to text emails.
-    options.mailTransport.use("compile", htmlToText());
-
-    options.service = new UserService(options);
-
-    const app = require("express").Router();
-
-    app.use(options.mountPoint, csrf({
-        cookie: true
-    }));
-
-    app.use(function(req, res, next) {
-        // Get the signed user cookie.
-        var cookie = req.signedCookies["user"];
-
-        // Check exprity of cookie as this can be spoofed.
-        const now = moment();
-        if (cookie) {
-            const expires = moment(cookie.expires, moment.ISO_8601);
-            if (expires.isBefore(now)) {
-                res.clearCookie("user");
+            // Automatically renew.
+            if (cookie) {
+                utils.renewCookie(req, res);
             }
-        }
 
-        // Make available to all templates.
-        if (cookie) {
-            req.user = cookie.user;
-            res.locals.user = cookie.user;
-        }
+            next();
+        });
 
-        // Automatically renew.
-        if (cookie) {
-            utils.renewCookie(req, res);
-        }
+        return app;
+    }
 
-        next();
-    });
+    createUserInterface() {
+        const options = this._options;
+        const app = require("express").Router();
 
-    app.use(options.mountPoint, function(req, res, next) {
-        // Set up the template path.
-        const originalRender = res.render;
-        res.render = function(template) {
-            originalRender.call(res, path.join(options.templatePath, template));
-        };
+        app.use(csrf({
+            cookie: true
+        }));
 
-        next();
-    });
+        app.use(function(req, res, next) {
+            // Set up the template path.
+            const originalRender = res.render;
+            res.render = function(template) {
+                originalRender.call(res, path.join(options.templatePath, template));
+            };
 
-    app.get(options.mountPoint, function(req, res) {
-        res.redirect(path.join(req.baseUrl, req.path, "login"));
-    });
+            next();
+        });
 
-    app.use(
-        path.join(options.mountPoint, "login"),
-        require("./login")(options)
-    );
+        app.get("/", function(req, res) {
+            res.redirect(path.join(req.baseUrl, req.path, "login"));
+        });
 
-    app.use(
-        path.join(options.mountPoint, "register"),
-        require("./register")(options)
-    );
+        app.use("/login", require("./login")(options));
+        app.use("/register", require("./register")(options));
+        app.use("/confirm-email", require("./confirm-email")(options));
+        app.use("/recover", require("./recover")(options));
+        app.use("/edit", require("./edit")(options));
+        app.use("/logout", require("./logout")(options));
 
-    app.use(
-        path.join(options.mountPoint, "confirm-email"),
-        require("./confirm-email")(options)
-    );
-
-    app.use(
-        path.join(options.mountPoint, "recover"),
-        require("./recover")(options)
-    );
-
-    app.use(
-        path.join(options.mountPoint, "edit"),
-        require("./edit")(options)
-    );
-
-    app.use(
-        path.join(options.mountPoint, "logout"),
-        require("./logout")(options)
-    );
-
-    return app;
+        return app;
+    }
 }
 
+module.exports = ExpressUserAccounts;
 module.exports.PouchDbStore = require("./pouchdb-store");
