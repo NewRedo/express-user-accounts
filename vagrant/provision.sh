@@ -8,14 +8,15 @@ netplan apply
 sleep 5 # Allow network to reconfigure
 
 # Main upgrade
+export DEBIAN_FRONEND=noninteractive
 apt-get update
-apt-get dist-upgrade
+apt-get -yqq dist-upgrade
 
 # Prod dependiencies
-apt-get install -y npm
+apt-get install -yqq npm
 
 # Dev dependencies - basic
-apt-get install -y avahi-daemon avahi-utils
+apt-get install -yqq avahi-daemon avahi-utils
 
 # Set up an email testing environment that catches all mail sent whatever the
 # address and deliver it to the same place so most testing senarios may be
