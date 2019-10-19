@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Use this file to bind mount any directories in the source code tree
+# that can't exist on the shared folder due to filing system compatability
+# issues, such as symbolic links or locking.
+
+# src/node_modules
+mkdir -p /home/vagrant/bind-mounts/src/node_modules
+chown vagrant:vagrant /home/vagrant/bind-mounts/src/node_modules
+mkdir -p /home/vagrant/src/node_modules
+chown vagrant:vagrant /home/vagrant/src/node_modules
+sudo mount --bind \
+    /home/vagrant/bind-mounts/src/node_modules \
+    /home/vagrant/src/node_modules
