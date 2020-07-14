@@ -6,6 +6,7 @@ const multer = require("multer");
 const os = require('os');
 const path = require("path");
 const ExpressUserAccounts = require("..");
+const nodemailer = require("nodemailer");
 
 const app = express();
 
@@ -25,7 +26,16 @@ const userAccounts = new ExpressUserAccounts({
     templatePath: path.join(__dirname, "user-account-templates"),
 
     // Pluggable data-stores are supported, this uses CouchDB.
-    store: new ExpressUserAccounts.PouchDbStore(path.join(os.homedir(), "users.pouchdb"))
+    store: new ExpressUserAccounts.PouchDbStore(path.join(os.homedir(), "users.pouchdb")),
+
+    // Use a custom mail transport for a mailsink for testing
+    mailTransport: nodemailer.createTransport({
+        host: process.env.SMTP_HOST || "localhost",
+        port: process.env.SMTP_PORT || 25,
+        tls: {
+            rejectUnauthorized: false
+        }
+    })
 });
 app.use(userAccounts.createMiddleware());
 app.use("/accounts", userAccounts.createUserInterface());

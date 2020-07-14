@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# This script runs a command using node:10 against the source code in docker.
+# It simplifies the development process by not containerising the entire
+# source code and provides volumes for the home directory.
+
+SCRIPT_DIR=$(dirname "$0")
+SCRIPT_DIR_PARENT=$(cd "$SCRIPT_DIR" && cd ../ && pwd)
+
+docker run -it \
+  -u $(id -u):$(id -g) \
+  -v "${SCRIPT_DIR_PARENT}:/tmp/src" \
+  -w /tmp/src \
+  node:10 \
+  "$@"

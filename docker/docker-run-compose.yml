@@ -1,0 +1,21 @@
+version: '3.3'
+services:
+  email:
+    image: ksokol/mailsink
+    user: ${RUNAS}
+    ports:
+      - "2525:2525"
+  web:
+    image: node:10
+    user: ${RUNAS}
+    depends_on:
+      - email
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../:/tmp/src
+    environment:
+      SMTP_HOST: email
+      SMTP_PORT: 2500
+    working_dir: /tmp/src
+    command: bash -c 'sleep 5; npm start'

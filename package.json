@@ -1,7 +1,10 @@
 {
   "name": "express-user-accounts",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
+  "scripts": {
+    "start": "node example"
+  },
   "dependencies": {
     "async": "^2.5.0",
     "base64url": "^2.0.0",

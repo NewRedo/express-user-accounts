@@ -6,18 +6,14 @@ Basic user account management for the web.
 Example & Getting Started
 -------------------------
 
-With Vagrant installed run the following:
+With Docker installed run the following:
 
 ```
-cd vagrant
-vagrant up
-vagrant ssh
-cd src
-npm install
-node example
+./docker/docker-node npm install
+./docker/docker-run
 ```
 
-Access the site in your browser at [http://user-accounts.local:3000](http://user-accounts.local:3000).
+Access the site in your browser at [http://localhost:3000](http://localhost:3000). View email sent at `http://localhost:2525/`.
 
 A full working example with skeleton templates is provided in the `./example` folder.
 
