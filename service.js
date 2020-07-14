@@ -78,7 +78,7 @@ class Service {
             (hash, cb) => {
                 args.bcryptedPassword = hash;
                 delete args.password;
-                args.id = uuid();
+                args.id = uuid.v4();
                 this._options.store.put(args, cb);
             },
             cb => {
