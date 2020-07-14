@@ -6,7 +6,7 @@ services:
     ports:
       - "2525:2525"
   web:
-    image: node:10
+    image: node:12
     user: ${RUNAS}
     depends_on:
       - email

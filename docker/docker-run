@@ -5,4 +5,4 @@
 SCRIPT_DIR=$(dirname "$0")
 SCRIPT_DIR_PARENT=$(cd "$SCRIPT_DIR" && cd ../ && pwd)
 
-RUNAS="$(id -u):$(id -g)" docker-compose -f "$SCRIPT_DIR_PARENT/docker/docker-run-compose.yml" up
+RUNAS="$(id -u):$(id -g)" docker-compose -f "$SCRIPT_DIR_PARENT/docker/docker-run-compose.yml" up --detach

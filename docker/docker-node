@@ -11,5 +11,5 @@ docker run -it \
   -u $(id -u):$(id -g) \
   -v "${SCRIPT_DIR_PARENT}:/tmp/src" \
   -w /tmp/src \
-  node:10 \
+  node:12 \
   "$@"
