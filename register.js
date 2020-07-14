@@ -22,11 +22,8 @@
 
 const express = require("express");
 const path = require("path");
-const multer = require("multer");
-const moment = require("moment");
 const url = require("url");
 const querystring = require("querystring");
-const pug = require("pug");
 const FormParser = require("./form-parser");
 const utils = require("./utils");
 
@@ -84,7 +81,7 @@ module.exports = function(options) {
 
     app.post("/", function(req, res, next) {
         const parser = new FormParser(res.locals.form);
-        parser.parsePost(req, (errors, values, extras) => {
+        parser.parsePost(req, (errors, values) => {
             // Special validation...
             if (!errors) {
                 if (req.body.password !== req.body.confirmPassword) {
@@ -198,11 +195,11 @@ module.exports = function(options) {
         }
     ]);
 
-    app.all("/", function(req, res, callback) {
+    app.all("/", function(req, res) {
         res.render("register");
     });
 
-    app.get("/pending", function(req, res, callback) {
+    app.get("/pending", function(req, res) {
         res.render("register-pending");
     });
 

@@ -22,7 +22,6 @@
 
 const extend = require("extend");
 const PouchDb = require("pouchdb");
-const async = require("async");
 
 class PouchDbStore {
     constructor(options) {

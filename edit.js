@@ -24,7 +24,6 @@ const extend = require("extend");
 const url = require("url");
 const path = require("path");
 const querystring = require("querystring");
-const pug = require("pug");
 const FormParser = require("./form-parser");
 const utils = require("./utils");
 
@@ -100,7 +99,7 @@ module.exports = function(options) {
 
     app.post("/", function(req, res, next) {
         const parser = new FormParser(res.locals.form);
-        parser.parsePost(req, (errors, values, extras) => {
+        parser.parsePost(req, (errors, values) => {
             if (req.body.newPassword !== req.body.confirmNewPassword) {
                 if (errors) {
                     errors.password = "Passwords don't match.";
@@ -250,13 +249,13 @@ module.exports = function(options) {
                 next();
             }
         },
-        function(req, res, next) {
+        function(req, res) {
             utils.renewCookie(req, res);
             res.redirect(req.query["return-url"]);
         }
     ]);
 
-    app.all("/", function(req, res, next) {
+    app.all("/", function(req, res) {
         res.render("edit");
     });
 

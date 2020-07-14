@@ -20,7 +20,6 @@
 
 "use strict";
 
-const moment = require("moment");
 const extend = require("extend");
 const path = require("path");
 const querystring = require("querystring");
@@ -60,7 +59,7 @@ module.exports = function(options) {
 
     app.post("/", function(req, res, next) {
         const parser = new FormParser(res.locals.form);
-        parser.parsePost(req, (errors, values, extras) => {
+        parser.parsePost(req, (errors, values) => {
             res.locals.values = values;
             res.locals.errors = errors;
             if (errors) {

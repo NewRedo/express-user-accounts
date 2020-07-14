@@ -23,11 +23,8 @@
 const async = require("async");
 const express = require("express");
 const path = require("path");
-const multer = require("multer");
-const moment = require("moment");
 const url = require("url");
 const querystring = require("querystring");
-const pug = require("pug");
 const FormParser = require("./form-parser");
 const utils = require("./utils");
 
@@ -50,7 +47,7 @@ module.exports = function(options) {
 
     app.post("/", function(req, res, next) {
         const parser = new FormParser(res.locals.form);
-        parser.parsePost(req, (errors, values, extras) => {
+        parser.parsePost(req, (errors, values) => {
             res.locals.values = values;
             res.locals.errors = errors;
             if (errors) {
@@ -107,11 +104,11 @@ module.exports = function(options) {
         ], callback);
     });
 
-    app.all("/", function(req, res, callback) {
+    app.all("/", function(req, res) {
         res.render("recover");
     });
 
-    app.get("/pending", function(req, res, callback) {
+    app.get("/pending", function(req, res) {
         res.render("recover-pending");
     });
 
@@ -154,7 +151,7 @@ module.exports = function(options) {
 
     app.post("/complete", function(req, res, next) {
         const parser = new FormParser(res.locals.form);
-        parser.parsePost(req, (errors, values, extras) => {
+        parser.parsePost(req, (errors, values) => {
             // Special validation...
             if (!errors) {
                 if (req.body.password !== req.body.confirmPassword) {
@@ -177,7 +174,7 @@ module.exports = function(options) {
     app.post("/complete", function(req, res, next) {
         async.waterfall([
             cb => options.service.recover(req.body, cb),
-            (user, cb) => {
+            (user) => {
                 req.user = user;
                 utils.renewCookie(req, res);
                 res.redirect(req.query["return-url"]);
@@ -185,7 +182,7 @@ module.exports = function(options) {
         ], next);
     });
 
-    app.all("/complete", function(req, res, next) {
+    app.all("/complete", function(req, res) {
         res.render("recover-complete");
     });
 

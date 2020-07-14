@@ -1,6 +1,6 @@
 {
   "name": "express-user-accounts",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "private": true,
   "dependencies": {
     "async": "^2.5.0",
@@ -17,12 +17,12 @@
     "nodemailer": "^4.6.5",
     "nodemailer-html-to-text": "^2.1.0",
     "pouchdb": "^6.3.4",
-    "pug": "^2.0.4",
     "uuid": "^3.1.0"
   },
   "devDependencies": {
     "bootstrap": "^3.3.7",
     "jquery": "^3.2.1",
-    "less-middleware": "^2.2.1"
+    "less-middleware": "^2.2.1",
+    "pug": "^2.0.4"
   }
 }

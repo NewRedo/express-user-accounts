@@ -21,15 +21,7 @@
 "use strict";
 
 const express = require("express");
-const path = require("path");
-const multer = require("multer");
-const moment = require("moment");
-const url = require("url");
-const querystring = require("querystring");
-const pug = require("pug");
-const FormParser = require("./form-parser");
 const utils = require("./utils");
-const async = require("async");
 
 module.exports = function(options) {
 
@@ -52,7 +44,7 @@ module.exports = function(options) {
         });
     });
 
-    app.get("/", function(req, res, next) {
+    app.get("/", function(req, res) {
         res.redirect(req.query["return-url"]);
     });
 
