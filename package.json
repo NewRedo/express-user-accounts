@@ -19,7 +19,7 @@
     "nodemailer": "^6.4.10",
     "nodemailer-html-to-text": "^3.1.0",
     "pouchdb": "^7.3.1",
-    "uuid": "^8.2.0"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "bootstrap": "^4.5.0",
